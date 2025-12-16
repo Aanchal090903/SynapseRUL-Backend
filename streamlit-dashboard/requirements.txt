@@ -1,0 +1,11 @@
+streamlit
+paho-mqtt
+pandas
+numpy
+requests
+lime
+plotly
+matplotlib
+scikit-learn
+onnxruntime
+streamlit-autorefresh

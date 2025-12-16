@@ -1,0 +1,26 @@
+version: '3.9'
+
+services:
+  mqtt-broker:
+    image: eclipse-mosquitto
+    container_name: mqtt-broker
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+
+  spring-ai-service:
+    build: ./spring-ai-service
+    container_name: spring-ai-service
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mqtt-broker
+
+  streamlit-dashboard:
+    build: ./streamlit-dashboard
+    container_name: streamlit-dashboard
+    ports:
+      - "8501:8501"
+    depends_on:
+      - spring-ai-service
+      - mqtt-broker
