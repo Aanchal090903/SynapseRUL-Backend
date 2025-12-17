@@ -81,28 +81,32 @@ xgb.fit(X_train, y_train)
 
 print("✅ Base models (RF, XGB) trained successfully!")
 
-# ----------------------------------------------------------
-# STEP 7: Ensemble (Soft Voting)
-# ----------------------------------------------------------
-ensemble = VotingClassifier(
-    estimators=[('rf', rf), ('xgb', xgb)],
-    voting='soft', weights=np.array([1.0, 1.0])
-)
-ensemble.fit(X_train, y_train)
-print("✅ Ensemble model training completed successfully!")
 
 # ----------------------------------------------------------
 # STEP 8: Evaluate Performance
 # ----------------------------------------------------------
-y_pred = ensemble.predict(X_test)
-acc = accuracy_score(y_test, y_pred)
-print(f"\n🎯 Test Accuracy: {acc*100:.2f}%")
-print("\nConfusion Matrix:\n", confusion_matrix(y_test, y_pred))
-print("\nClassification Report:\n", classification_report(y_test, y_pred))
 
-cv = cross_val_score(ensemble, X_scaled, y, cv=5)
-print(f"\n🔁 Cross-Validation Accuracy: {cv.mean()*100:.2f}% ± {cv.std()*100:.2f}%")
+# Individual model probabilities
+rf_prob = rf.predict_proba(X_test)[:, 1]
+xgb_prob = xgb.predict_proba(X_test)[:, 1]
 
+# Manual soft voting
+ensemble_prob = 0.5 * rf_prob + 0.5 * xgb_prob
+ensemble_pred = (ensemble_prob > 0.5).astype(int)
+
+# Metrics
+acc = accuracy_score(y_test, ensemble_pred)
+print(f"\n🎯 Ensemble Test Accuracy: {acc*100:.2f}%")
+
+print("\nConfusion Matrix:\n", confusion_matrix(y_test, ensemble_pred))
+print("\nClassification Report:\n", classification_report(y_test, ensemble_pred))
+
+# Cross-validation (using VotingClassifier for stability check)
+rf_cv = cross_val_score(rf, X_scaled, y, cv=5)
+xgb_cv = cross_val_score(xgb, X_scaled, y, cv=5)
+
+print(f"\n🔁 RF CV Accuracy: {rf_cv.mean()*100:.2f}% ± {rf_cv.std()*100:.2f}%")
+print(f"🔁 XGB CV Accuracy: {xgb_cv.mean()*100:.2f}% ± {xgb_cv.std()*100:.2f}%")
 # ----------------------------------------------------------
 # STEP 9: Feature Importance Analysis
 # ----------------------------------------------------------
@@ -132,8 +136,7 @@ print("📊 Feature importance chart saved to artifacts/feature_importance.png")
 # ----------------------------------------------------------
 # STEP 10: Save Model Artifacts
 # ----------------------------------------------------------
-with open("artifacts/model.pkl", "wb") as f:
-    pickle.dump(ensemble, f)
+
 with open("artifacts/scaler.pkl", "wb") as f:
     pickle.dump(scaler, f)
 
