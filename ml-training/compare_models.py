@@ -58,8 +58,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 # but RF pickle is inside the ensemble only.
 # So we re-load RF from the ensemble if needed.
 
-ensemble = pickle.load(open("artifacts/model.pkl", "rb"))
-rf = dict(ensemble.named_estimators_)["rf"]
+rf = pickle.load(open("artifacts/rf_model.pkl", "rb"))
 
 xgb = pickle.load(open("artifacts/xgb_model.pkl", "rb"))
 

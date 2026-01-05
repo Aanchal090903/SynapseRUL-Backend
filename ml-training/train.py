@@ -7,7 +7,6 @@ from sklearn.ensemble import RandomForestClassifier, VotingClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 from xgboost import XGBClassifier
-import matplotlib.pyplot as plt
 import pickle, warnings, os
 warnings.filterwarnings("ignore")
 
